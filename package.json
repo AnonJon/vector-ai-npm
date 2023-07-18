@@ -1,0 +1,22 @@
+{
+  "name": "vector-ai",
+  "version": "0.0.20",
+  "description": "",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@types/pg": "^8.10.2",
+    "@types/react": "^18.2.15",
+    "@types/react-dom": "^18.2.7",
+    "langchain": "^0.0.110",
+    "openai": "^3.3.0",
+    "pg": "^8.11.1"
+  }
+}
