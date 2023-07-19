@@ -4,7 +4,7 @@ import { Document } from "langchain/document";
 import { ConversationChain } from "langchain/chains";
 import { PromptTemplate } from "langchain/prompts";
 import { ChatOpenAI } from "langchain/chat_models/openai";
-import { Client } from "pg";
+import { Pool } from "pg";
 
 interface VectorClientOptions {
   apiKey: string;
@@ -19,14 +19,22 @@ interface QueryEmbeddingsOptions {
   count: number;
 }
 
+interface IngestDataOptions {
+  data: string;
+  dbTable: string;
+  chunkSize?: number;
+  chunkOverlap?: number;
+}
+
 export class VectorClient {
   private client: OpenAIApi;
-  private dbClient: Client;
+  private dbClient: Pool;
   private model: string;
   private chatClient: ChatOpenAI;
+
   constructor(options: VectorClientOptions) {
     const { apiKey, model, dbUrl } = options;
-    this.dbClient = new Client({
+    this.dbClient = new Pool({
       connectionString: dbUrl,
     });
     this.model = model;
@@ -37,6 +45,17 @@ export class VectorClient {
       modelName: this.model, // gpt-3.5-turbo, | gpt-4
     });
   }
+
+  private chatTemplate = (): PromptTemplate => {
+    const template = `You are a enthusiastic chatbot that loves to answer questions about the StakeDotLink platform. 
+    You are talking to a user who is asking you a question about the platform and have some additional context to help answer the question.
+     {input}`;
+    const prompt = new PromptTemplate({
+      template,
+      inputVariables: ["input"],
+    });
+    return prompt;
+  };
 
   /**
    * Query the model with the question and embedding response context to form answer.
@@ -65,21 +84,18 @@ export class VectorClient {
     const { embeddings, dbFunction, threshold, count } = options;
     let details: any[] = [];
     try {
-      await this.dbClient.connect();
       const res = await this.dbClient.query(
         `SELECT * FROM ${dbFunction}(ARRAY[${embeddings}]::vector, ${threshold}, ${count})`
       );
       details = res.rows;
     } catch (err: any) {
       console.error("Error connecting to database", err.stack);
-    } finally {
-      await this.dbClient.end();
+      throw err;
     }
-    let context = "";
-    for (const detail of details) {
-      const d = detail.content;
-      context += `${d.trim()}\n---\n`;
-    }
+
+    const context = details
+      .map((detail) => `${detail.content.trim()}\n---\n`)
+      .join("");
 
     return context;
   }
@@ -118,26 +134,26 @@ export class VectorClient {
    * This method ingests data into a specified database table. The data is split into chunks and for each chunk,
    * an embedding is created. The chunk and its corresponding embedding are then inserted into the database.
    *
-   * @param data - The string data to be ingested.
-   * @param dbTable - The name of the database table where the data and embedding will be inserted.
+   * @param {IngestDataOptions} options - The options for the ingestion. chunkSize and chunkOverlap are optional and default to 1000 and 200 respectively.
    *
    * @returns A Promise that resolves when all data has been ingested.
    *
    * @example
-   * await vectorClient.ingestData("This is some example data.", "myTable");
+   * await vectorClient.ingestData({data: "This is some example data.", dbTable: "myTable"});
    *
    * @throws This method can throw errors if there's an issue with splitting documents, creating embeddings,
    * or interacting with the database.
    */
-  public async ingestData(data: string, dbTable: string): Promise<void> {
+  public async ingestData(options: IngestDataOptions): Promise<void> {
+    const { data, dbTable, chunkSize = 1000, chunkOverlap = 200 } = options;
     const textSplitter = new RecursiveCharacterTextSplitter({
-      chunkSize: 1000,
-      chunkOverlap: 200,
+      chunkSize,
+      chunkOverlap,
     });
     const docs = await textSplitter.splitDocuments([
       new Document({ pageContent: data }),
     ]);
-    await this.dbClient.connect();
+
     for (const doc of docs) {
       const input = doc.pageContent.toString().replace(/\n/g, " ");
 
@@ -153,17 +169,5 @@ export class VectorClient {
         throw new Error(`Error inserting data into database: ${error}`);
       }
     }
-    await this.dbClient.end();
   }
-
-  private chatTemplate = (): PromptTemplate => {
-    const template = `You are a enthusiastic chatbot that loves to answer questions about the StakeDotLink platform. 
-    You are talking to a user who is asking you a question about the platform and have some additional context to help answer the question.
-     {input}`;
-    const prompt = new PromptTemplate({
-      template,
-      inputVariables: ["input"],
-    });
-    return prompt;
-  };
 }

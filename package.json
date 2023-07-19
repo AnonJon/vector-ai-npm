@@ -1,9 +1,14 @@
 {
   "name": "vector-ai",
-  "version": "0.0.20",
+  "version": "0.0.22",
   "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "exports": {
+    ".": "./dist/index.js",
+    "./components": "./dist/components/index.js",
+    "./clients": "./dist/clients/index.js"
+  },
   "scripts": {
     "build": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1"
