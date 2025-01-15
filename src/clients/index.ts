@@ -1,1 +1,1 @@
-export * from "./vector-client";
+export * from './vector-client'

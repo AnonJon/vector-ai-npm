@@ -1,0 +1,74 @@
+{
+    "root": true,
+    "plugins": ["prettier", "testing-library", "@typescript-eslint"],
+    "extends": [
+      "eslint:recommended",
+      "plugin:@typescript-eslint/recommended",
+      "prettier"
+    ],
+    "env": {
+      "es2020": true,
+      "browser": true,
+      "node": true,
+      "jest": true,
+      "es6": true
+    },
+    "parserOptions": {
+      "sourceType": "module",
+      "ecmaVersion": 12,
+      "ecmaFeatures": {
+        "jsx": true
+      }
+    },
+    "rules": {
+      "semi": ["error", "never"],
+      "quotes": [
+        "error",
+        "single",
+        {
+          "avoidEscape": true,
+          "allowTemplateLiterals": true
+        }
+      ],
+      "no-trailing-spaces": ["warn"],
+      "no-multiple-empty-lines": [
+        "error",
+        {
+          "max": 2,
+          "maxEOF": 1
+        }
+      ],
+      "no-unused-vars": "off",
+      "@typescript-eslint/no-unused-vars": "error",
+      "no-inner-declarations": 0,
+      "no-console": ["warn", { "allow": ["error"] }],
+      "jsx-a11y/anchor-is-valid": ["off"],
+      "prettier/prettier": "error",
+      "testing-library/await-async-utils": 0,
+      "no-empty": [
+        "error",
+        {
+          "allowEmptyCatch": true
+        }
+      ],
+      "testing-library/prefer-screen-queries": "off"
+    },
+    "overrides": [
+      {
+        "files": ["**/*.ts", "**/*.tsx"],
+        "parser": "@typescript-eslint/parser",
+        "parserOptions": {
+          "project": ["./tsconfig.json"],
+          "sourceType": "module",
+          "ecmaVersion": 2020
+        },
+        "extends": [
+          "plugin:@typescript-eslint/recommended"
+        ],
+        "rules": {
+          "@typescript-eslint/explicit-module-boundary-types": "off",
+          "@typescript-eslint/no-explicit-any": "off"
+        }
+      }
+    ]
+}

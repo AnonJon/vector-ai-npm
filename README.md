@@ -1,10 +1,10 @@
 # Vector AI
 
-Vector AI is a powerful, easy-to-use library for generating embeddings and using semantic search to identify patterns. It is designed to work seamlessly with modern JavaScript and TypeScript codebases.
+Vector AI is a powerful, easy-to-use library for generating embeddings and using semantic search to identify patterns. It is designed to work cleanly with modern JavaScript and TypeScript codebases.
 
 ## Features
 
-- Intuitive API for creating vector embeddings and query matching vector databases
+- Intuitive API for creating vector embeddings and query matching vector databases for RAG operations
 - Support for async operations
 - Compatible with both JavaScript and TypeScript
 
@@ -16,10 +16,10 @@ You can install Vector AI via npm:
 npm install vector-ai
 ```
 
-Or with Yarn:
+Or with Bun:
 
 ```sh
-yarn add vector-ai
+bun add vector-ai
 ```
 
 ## Usage
@@ -31,8 +31,12 @@ import { VectorClient } from "vector-ai";
 
 const client = new VectorClient({
   apiKey: "",
-  model: "",
-  dbUrl: ""
+  dbUrl: "",
+  model: "gpt-3.5-turbo", // gpt-4
+  template: "Your role...",
+  temperature: 0.8,
+  chunkSize?: 500,
+  chunkOverlap?: 100,
 });
 
 const question = "What is the capital of France?";
@@ -41,7 +45,7 @@ const question = "What is the capital of France?";
 const embeddings = await client create.embeddings(question);
 
 // Query embeddings
-const context = await client.queryEmbeddings(embeddings, "<db function name>");
+const context = await client.queryEmbeddings(embeddings, "<db function name>"); // e.g., 'match_documents'
 
 // Get answer
 const answer = await client.getAnswer(question, context);
@@ -53,8 +57,12 @@ const answer = await client.getAnswer(question, context);
 ```javascript
 const client = new VectorClient({
   apiKey: "",
-  model: "gpt-3.5-turbo",
   dbUrl: "",
+  model: "gpt-3.5-turbo", // gpt-4
+  template: "Your role...",
+  temperature: 0.8,
+  chunkSize?: 500,
+  chunkOverlap?: 100,
 });
 let data = "";
 try {

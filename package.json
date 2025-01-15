@@ -1,27 +1,44 @@
 {
   "name": "vector-ai",
-  "version": "0.0.22",
+  "version": "0.0.27",
   "description": "",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "dist/src/index.js",
+  "types": "dist/src/index.d.ts",
   "exports": {
-    ".": "./dist/index.js",
-    "./components": "./dist/components/index.js",
-    "./clients": "./dist/clients/index.js"
+    ".": "./dist/src/index.js",
+    "./components": "./dist/src/components/index.js",
+    "./clients": "./dist/src/clients/index.js"
   },
   "scripts": {
     "build": "tsc",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "prettier": "prettier --check \"src/**/*.ts\"",
+    "prettier:fix": "prettier --write \"src/**/*.ts\"",
+    "lint": "eslint src --ext .ts",
+    "lint:fix": "eslint --fix src --ext .ts"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@types/pg": "^8.10.2",
-    "@types/react": "^18.2.15",
-    "@types/react-dom": "^18.2.7",
     "langchain": "^0.0.110",
     "openai": "^3.3.0",
     "pg": "^8.11.1"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.22.10",
+    "@babel/core": "^7.22.10",
+    "@babel/node": "^7.22.10",
+    "@babel/preset-env": "^7.22.10",
+    "@babel/preset-typescript": "^7.22.5",
+    "@typescript-eslint/eslint-plugin": "^8.20.0",
+    "@typescript-eslint/parser": "^8.20.0",
+    "babel-plugin-module-resolver": "^5.0.0",
+    "eslint": "^9.18.0",
+    "eslint-config-prettier": "^10.0.1",
+    "eslint-plugin-prettier": "^5.2.1",
+    "eslint-plugin-react": "^7.24.0",
+    "eslint-plugin-testing-library": "^7.1.1",
+    "prettier": "^3.4.2",
+    "typescript": "5.1.6"
   }
 }
