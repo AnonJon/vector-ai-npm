@@ -2,8 +2,8 @@ import { OpenAI } from 'openai'
 import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter'
 import { Document } from 'langchain/document'
 import { ConversationChain } from 'langchain/chains'
-import { ChatPromptTemplate, BasePromptTemplate } from '@langchain/core/prompts'
-import { ChatOpenAI } from '@langchain/openai'
+import { PromptTemplate } from 'langchain/prompts'
+import { ChatOpenAI } from 'langchain/chat_models/openai'
 import { Pool } from 'pg'
 
 interface VectorClientOptions {
@@ -100,7 +100,7 @@ export class VectorClient {
       this.client = new OpenAI({ apiKey })
       this.chatClient = new ChatOpenAI({
         openAIApiKey: apiKey,
-        model: model ?? 'gpt-4o',
+        modelName: model ?? 'gpt-4o',
         temperature: temperature ?? 0
       })
     } catch (error) {
@@ -110,8 +110,12 @@ export class VectorClient {
     }
   }
 
-  private chatTemplate = (): BasePromptTemplate => {
-    return ChatPromptTemplate.fromTemplate(this.template) as BasePromptTemplate
+  private chatTemplate = (): PromptTemplate => {
+    const prompt = new PromptTemplate({
+      template: this.template,
+      inputVariables: ['input']
+    })
+    return prompt
   }
 
   /**
@@ -461,7 +465,10 @@ export class VectorClient {
     # Context: {context}
   `.trim()
 
-    const promptA = ChatPromptTemplate.fromMessages([['system', template]])
+    const promptA = new PromptTemplate({
+      template,
+      inputVariables: ['question', 'context']
+    })
 
     const input = await promptA.format({ question, context })
 
