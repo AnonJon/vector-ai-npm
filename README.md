@@ -32,7 +32,7 @@ import { VectorClient } from "vector-ai";
 const client = new VectorClient({
   apiKey: "",
   dbUrl: "",
-  model: "gpt-3.5-turbo", // gpt-4
+  model: "gpt-4o",
   template: "Your role...",
   temperature: 0.8,
   chunkSize?: 500,
@@ -42,7 +42,7 @@ const client = new VectorClient({
 const question = "What is the capital of France?";
 
 // Create embeddings
-const embeddings = await client create.embeddings(question);
+const embeddings = await client.createEmbeddings(question);
 
 // Query embeddings
 const context = await client.queryEmbeddings(embeddings, "<db function name>"); // e.g., 'match_documents'

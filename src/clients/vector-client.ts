@@ -1,9 +1,9 @@
-import { Configuration, OpenAIApi } from 'openai'
+import { OpenAI } from 'openai'
 import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter'
 import { Document } from 'langchain/document'
 import { ConversationChain } from 'langchain/chains'
-import { PromptTemplate } from 'langchain/prompts'
-import { ChatOpenAI } from 'langchain/chat_models/openai'
+import { ChatPromptTemplate, BasePromptTemplate } from '@langchain/core/prompts'
+import { ChatOpenAI } from '@langchain/openai'
 import { Pool } from 'pg'
 
 interface VectorClientOptions {
@@ -51,7 +51,7 @@ interface Embedding {
 }
 
 export class VectorClient {
-  private client: OpenAIApi
+  private client: OpenAI
   private chatClient: ChatOpenAI
   private dbClient: Pool
   private template: string
@@ -97,10 +97,10 @@ export class VectorClient {
     temperature?: number
   ): void {
     try {
-      this.client = new OpenAIApi(new Configuration({ apiKey }))
+      this.client = new OpenAI({ apiKey })
       this.chatClient = new ChatOpenAI({
         openAIApiKey: apiKey,
-        modelName: model ?? 'gpt-3.5-turbo', // or 'gpt-4'
+        model: model ?? 'gpt-4o',
         temperature: temperature ?? 0
       })
     } catch (error) {
@@ -110,12 +110,8 @@ export class VectorClient {
     }
   }
 
-  private chatTemplate = (): PromptTemplate => {
-    const prompt = new PromptTemplate({
-      template: this.template,
-      inputVariables: ['input']
-    })
-    return prompt
+  private chatTemplate = (): BasePromptTemplate => {
+    return ChatPromptTemplate.fromTemplate(this.template) as BasePromptTemplate
   }
 
   /**
@@ -372,11 +368,11 @@ export class VectorClient {
    */
   public async createEmbeddings(question: string): Promise<number[]> {
     const getEmbeddings = async (): Promise<number[]> => {
-      const embeddingResponse = await this.client.createEmbedding({
+      const embeddingResponse = await this.client.embeddings.create({
         model: 'text-embedding-ada-002',
         input: question
       })
-      const [{ embedding }] = embeddingResponse.data.data
+      const embedding = embeddingResponse.data[0].embedding
       return embedding
     }
 
@@ -465,10 +461,7 @@ export class VectorClient {
     # Context: {context}
   `.trim()
 
-    const promptA = new PromptTemplate({
-      template,
-      inputVariables: ['question', 'context']
-    })
+    const promptA = ChatPromptTemplate.fromMessages([['system', template]])
 
     const input = await promptA.format({ question, context })
 
