@@ -86,7 +86,8 @@ export class VectorClient {
       })
     } catch (error) {
       throw new Error(
-        '[vector-ai] Could not initialize db. Did you provide a valid `dbUrl`?'
+        '[vector-ai] Could not initialize db. Did you provide a valid `dbUrl`?: ' +
+          error
       )
     }
   }
@@ -105,7 +106,8 @@ export class VectorClient {
       })
     } catch (error) {
       throw new Error(
-        '[vector-ai] Could not initialize client. Did you provide a valid `apiKey` and `model`?'
+        '[vector-ai] Could not initialize client. Did you provide a valid `apiKey` and `model`?: ' +
+          error
       )
     }
   }

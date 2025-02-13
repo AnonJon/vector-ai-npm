@@ -1,6 +1,6 @@
 {
   "name": "vector-ai",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Vector AI is a powerful, easy-to-use library for generating embeddings and using semantic search to identify patterns. It is designed to work cleanly with modern JavaScript and TypeScript codebases.",
   "repository": {
     "type": "git",
